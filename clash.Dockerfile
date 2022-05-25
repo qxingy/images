@@ -1,10 +1,15 @@
 FROM golang:1.18.0-alpine AS builder
 
+ARG GOPATH=/go
 ENV GOPROXY=https://goproxy.cn,https://goproxy.io,direct
 
-RUN go install github.com/Dreamacro/clash@latest
+RUN go env -w GOPATH=${GOPATH} && \
+    go install github.com/Dreamacro/clash@latest
 
-FROM --from=builder $GOPATH/bin/clash /usr/bin/.
+FROM alpine:latest
+
+ARG GOPATH=/go
+COPY --from=builder ${GOPATH}/bin/clash /usr/bin/.
 
 VOLUME /config
 EXPOSE 7890
